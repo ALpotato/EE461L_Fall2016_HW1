@@ -21,18 +21,11 @@ import com.google.appengine.api.users.UserServiceFactory;
 
 @SuppressWarnings("serial")
 public class CronServlet extends HttpServlet {
+    //FIXME:logger probably not needed
     private static final Logger _logger = Logger.getLogger(CronServlet.class.getName());
-    public static ArrayList<User> subscribedUsers = new ArrayList<User>();
+    public static ArrayList<User> subscribed = new ArrayList<User>();
     public static ArrayList<String> posts = new ArrayList<String>();
     public static ArrayList<String> users = new ArrayList<String>();
-
-    public static void addUser(User user) {
-        subscribedUsers.add(user);
-    }
-
-    public static void removeUser(User user) {
-        subscribedUsers.remove(user);
-    }
 
     public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
 
@@ -40,72 +33,49 @@ public class CronServlet extends HttpServlet {
         User user = userService.getCurrentUser();
         String blogName = req.getParameter("blogName");
 
-        if (subscribedUsers.contains(user)) {
-            removeUser(user);
+        if (subscribed.contains(user)) {
+            subscribed.remove(user);
         } else {
-            addUser(user);
+            subscribed.add(user);
         }
         resp.sendRedirect("/home.jsp?blogName=" + blogName);
     }
 
     public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        _logger.info("Test");
-
-//        UserService userService = UserServiceFactory.getUserService();
-//        User user = userService.getCurrentUser();
+        _logger.info("trigged doGet method for cron services");
         String blogName = req.getParameter("blogName");
-
-        // Sender's email ID needs to be mentioned
-        //TODO: change the email account address
-        String from = "admin@random-thoughts8.appspotmail.com";
+        //FIXME: change the email account address
+        String fromWhom = "admin@random-thoughts8.appspotmail.com";
 
         // Get system properties
         Properties properties = new Properties();
         Session session = Session.getDefaultInstance(properties, null);
 
-        for (int index = 0; index < subscribedUsers.size(); index += 1) {
-
-            /** Need to get all of the emails **/
-            String to = subscribedUsers.get(index).getEmail();
-            _logger.info(to);
-
+        for (int i = 0; i < subscribed.size(); i += 1) {
+            String toWhom = subscribed.get(i).getEmail();
+            _logger.info(toWhom);
             try {
-                // String htmlText;
-                String text = "This is your daily update for your Subscription to the Random Thoughts Blog: \n\n";
-                // Multipart mp = new MimeMultipart();
-                // Create a default MimeMessage object.
-                MimeMessage message = new MimeMessage(session);
-                // Set From: header field of the header.
-                message.setFrom(new InternetAddress(from));
-                // Set To: header field of the header.
-                message.addRecipient(Message.RecipientType.TO, new InternetAddress(to));
-                // Set Subject: header field
-                message.setSubject("Blog Update!");
-                int size = posts.size();
-                if (size == 0) {
-                    text = "There have not been any new posts since the last update";
+                String blogUpdateMessage = "Daily update for the Group 24 Blog: \n\n";
+                MimeMessage mimeMessage = new MimeMessage(session);
+                mimeMessage.setFrom(new InternetAddress(fromWhom));
+                mimeMessage.addRecipient(Message.RecipientType.TO, new InternetAddress(toWhom));
+                mimeMessage.setSubject("Blog Updates from Group 24 Blog");
+                if (posts.size() == 0) {
+                    blogUpdateMessage = "No new posts since last update";
                 } else {
-                    for (int loop = 0; loop < size; loop += 1) {
-                        text += users.get(loop);
-                        text += "  wrote: \n";
-                        text += posts.get(loop);
-                        text += "\n";
-                        // MimeBodyPart htmlPart = new MimeBodyPart();
-                        // htmlText = " ";
-                        // _logger.info("Checking: " + htmlText);
-                        // htmlPart.setContent(htmlText, posts.get(loop));
-                        // mp.addBodyPart(htmlPart);
+                    for (int j = 0; j < posts.size(); j += 1) {
+                        blogUpdateMessage += users.get(j);
+                        blogUpdateMessage += "  wrote: \n";
+                        blogUpdateMessage += posts.get(j);
+                        blogUpdateMessage += "\n";
                     }
                 }
-                // message.setContent(mp);
-                // Now set the actual message
-                message.setText(text);
-                // Send message
-                Transport.send(message);
-                _logger.info("Cron Job has been executed");
-            } catch (MessagingException e) {
-                _logger.info("Cron Job has NOT been executed");
-                e.printStackTrace();
+                mimeMessage.setText(blogUpdateMessage);
+                Transport.send(mimeMessage);
+                _logger.info("Cron executed");
+            } catch (MessagingException messagingException) {
+                _logger.info("Cron not executed");
+                messagingException.printStackTrace();
             }
         }
         posts.clear();

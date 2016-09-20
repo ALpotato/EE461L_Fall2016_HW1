@@ -10,7 +10,7 @@
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
-
+<!-- FIXME: fix this jsp file so that it works just like the home.jsp file but show all posts -->
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />

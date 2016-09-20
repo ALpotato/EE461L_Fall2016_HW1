@@ -10,28 +10,33 @@
 <%@ page import="com.google.appengine.api.users.UserService"%>
 <%@ page import="com.google.appengine.api.users.UserServiceFactory"%>
 <%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
 <head>
 <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
 </head>
+<%
+    String blogName = request.getParameter("blogName");
+    if (blogName == null) {
+        blogName = "EE461L Fall 2016 Homework 1 Group 24";
+    }
+    pageContext.setAttribute("blogName", blogName);
+    UserService userService = UserServiceFactory.getUserService();
+    User user = userService.getCurrentUser();
+
+    ObjectifyService.register(Blog.class);
+    List<Blog> blogs = ObjectifyService.ofy().load().type(Blog.class).list();
+    Collections.sort(blogs);
+%>
 <body>
-    <ul>
-        <li><a href="home.jsp">Home</a></li>
-        <li><a href="showAllPosts.jsp">All Posts</a></li>
-    </ul>
-    <div class="image">
-            <img style="margin: 0px; opacity: 0.9;" src="/images/24.jpg" height="400" width="1090">
-            <h1 class="title">Welcome to Blog created by EE461L Fall 2016 Homework 1 Group 24!</h1>
+    <div id="container">
+        <div id="bannaer">
+            <h1 class="title-text">Welcome to Blog created by EE461L Fall 2016 Homework 1 Group 24!</h1>
+        </div>
     </div>
+    <div id="content">
     <%
-        String blogName = request.getParameter("blogName");
-        if (blogName == null) {
-            blogName = "EE461L Fall 2016 Homework 1 Group 24";
-        }
-        pageContext.setAttribute("blogName", blogName);
-        UserService userService = UserServiceFactory.getUserService();
-        User user = userService.getCurrentUser();
         if (user != null) {
             pageContext.setAttribute("user", user);
     %>
@@ -40,25 +45,6 @@
             href="<%=userService.createLogoutURL(request.getRequestURI())%>">sign
             out</a>.)
     </p>
-    <form action="/cron/mycronjob" method="post">
-        <%
-            if (blog.CronServlet.subscribedUsers.contains(user)) {
-        %>
-        <div>
-            <input type="submit" class="submitlink" value="Unsubscribe" />
-        </div>
-        <%
-            } else {
-        %>
-        <div>
-            <input type="submit" class="submitlink" value="Subscribe" />
-        </div>
-        <%
-            }
-        %>
-        <input type="hidden" name="blogName"
-            value="${fn:escapeXml(blogName)}" />
-    </form>
     <%
         } else {
     %>
@@ -69,11 +55,6 @@
     </p>
     <%
         }
-    %>
-    <%
-        ObjectifyService.register(Blog.class);
-        List<Blog> blogs = ObjectifyService.ofy().load().type(Blog.class).list();
-        Collections.sort(blogs);
         if (blogs.isEmpty()) {
     %>
     <p>Blog '${fn:escapeXml(blogName)}' has no messages.</p>
@@ -110,6 +91,7 @@
         }
         if (user != null) {
     %>
+    
     <form action="/ofysign" method="post">
         <textarea name="title" rows="1" cols="60" placeholder="Insert title here"></textarea>
         <br>
@@ -123,5 +105,36 @@
             value="${fn:escapeXml(blogName)}" />
     </form>
     <% } %>
+    </div>
+    <div id="sidebar">
+        <ul>
+            <li class="links">Navigate</li>
+            <li><a href="home.jsp">Home</a></li>
+            <li><a href="showAllPosts.jsp">All Posts</a></li>
+            <li>
+                <form action="/cron/mycronjob" method="post">
+                    <%
+                        if (blog.CronServlet.subscribed.contains(user)) {
+                    %>
+                    <div>
+                        <input type="submit" class="submitlink"
+                            value="Unsubscribe" />
+                    </div>
+                    <%
+                        } else {
+                    %>
+                    <div>
+                        <input type="submit" class="submitlink"
+                            value="Subscribe" />
+                    </div>
+                    <%
+                        }
+                    %>
+                    <input type="hidden" name="blogName"
+                        value="${fn:escapeXml(blogName)}" />
+                </form>
+            </li>
+        </ul>
+    </div>
 </body>
 </html>

@@ -3,7 +3,7 @@
     <cron>
         <url>/cron/mycronjob</url>
         <description>cron job</description>
-        <schedule>every day 02:45</schedule>
+        <schedule>every day 10:45</schedule>
         <timezone>America/Chicago</timezone>
     </cron>
 </cronentries>
