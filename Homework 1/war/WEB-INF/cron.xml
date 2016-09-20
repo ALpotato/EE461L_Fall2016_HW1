@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <cronentries>
-	<cron>
-		<url>/cron/mycronjob</url>
-		<description>cron job</description>
-		<schedule>every day 02:45</schedule>
-		<timezone>America/Chicago</timezone>
-	</cron>
+    <cron>
+        <url>/cron/mycronjob</url>
+        <description>cron job</description>
+        <schedule>every day 02:45</schedule>
+        <timezone>America/Chicago</timezone>
+    </cron>
 </cronentries>
