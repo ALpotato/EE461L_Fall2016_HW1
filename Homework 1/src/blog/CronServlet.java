@@ -11,6 +11,7 @@ import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,23 +28,21 @@ public class CronServlet extends HttpServlet {
     public static ArrayList<String> posts = new ArrayList<String>();
     public static ArrayList<String> users = new ArrayList<String>();
 
-    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
 
         UserService userService = UserServiceFactory.getUserService();
         User user = userService.getCurrentUser();
-        String blogName = req.getParameter("blogName");
-
         if (subscribed.contains(user)) {
             subscribed.remove(user);
         } else {
             subscribed.add(user);
         }
-        resp.sendRedirect("/home.jsp?blogName=" + blogName);
+        req.getSession().setAttribute("subscribed", subscribed);
+        req.getRequestDispatcher("home.jsp").forward(req, resp);
     }
 
-    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+    public void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
         _logger.info("trigged doGet method for cron services");
-        String blogName = req.getParameter("blogName");
         //FIXME: change the email account address
         String fromWhom = "admin@random-thoughts8.appspotmail.com";
 
@@ -79,6 +78,6 @@ public class CronServlet extends HttpServlet {
             }
         }
         posts.clear();
-        resp.sendRedirect("/home.jsp?blogName=" + blogName);
+        req.getRequestDispatcher("home.jsp").forward(req, resp);
     }
 }

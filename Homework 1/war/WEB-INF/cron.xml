@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE xml>
 <cronentries>
     <cron>
-        <url>/cron/mycronjob</url>
-        <description>cron job</description>
+        <url>/cronjob</url>
+        <description>send email updates to subscribed users</description>
         <schedule>every day 10:45</schedule>
         <timezone>America/Chicago</timezone>
     </cron>

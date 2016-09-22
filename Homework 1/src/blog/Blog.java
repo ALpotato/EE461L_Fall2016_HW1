@@ -27,6 +27,10 @@ public class Blog implements Comparable<Blog> {
         date = new Date();
     }
 
+    public Date getDate() {
+        return date;
+    }
+
     public User getUser() {
         return user;
     }
@@ -42,9 +46,9 @@ public class Blog implements Comparable<Blog> {
     @Override
     public int compareTo(Blog other) {
         if (date.after(other.date)) {
-            return 1;
-        } else if (date.before(other.date)) {
             return -1;
+        } else if (date.before(other.date)) {
+            return 1;
         }
         return 0;
     }
